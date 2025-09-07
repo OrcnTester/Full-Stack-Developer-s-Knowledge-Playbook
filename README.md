@@ -3,6 +3,10 @@
 “Includes VakıfBank 2025 Assessment Prep + Java, System Design & Patterns Deep Dive”
 *Prepared by Orçun Yörük*  
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/OrcnTester/vakifbank-fullstack-exam-guide-2025/main/OrçunYörük_PlayBookBanner.png" alt="Banner" width="100%" />
+</p>
+
 ---
 
 ## 📑 Abstract  
