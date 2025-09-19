@@ -162,508 +162,81 @@ ResultSet rs = stmt.executeQuery();
 - **UAT** → Final business validation ✅  
 
 ---
+## 8. Big-O--Algorithms
 
-## 8. Big-O & Algorithms  
+📖 For the full advanced notes, see [BigO_Detailed.md](docs/BigO_Detailed.md)
 
-### Nested Loop Example (Listing 3)  
+### O(1) — Constant Time Access
+
+#### Examples
 ```java
-int count = 0;
-for (int i = 0; i < N; i++) {
-    for (int j = 0; j < i; j++) {
-        count++;
-    }
-}
-```
-- Total ops: N*(N-1)/2  
-- Complexity: **O(N²)**
-
-### Common Complexities  
-#### O(1) → Constant lookup e.g., accessing an element in an array or HashMap. 
-```java
-//Idea: Access is constant when the data structure provides direct addressing.
-//O(1) — Constant Lookup (Array/Map Access)
-// Complexity: O(1)
-// Pattern: Direct addressing / hash lookup
 int[] arr = { 4, 8, 15, 16, 23, 42 };
-int index = 3;               // given index
-int value = arr[index];      // constant-time access
+int value = arr[3]; // O(1)
 
-// HashMap variant
 Map<String, Integer> scores = new HashMap<>();
 scores.put("ali", 90);
-scores.put("ayşe", 95);
-int ayse = scores.get("ayşe"); // average O(1) hash lookup
+scores.put("ayse", 95);
+int ayse = scores.get("ayse"); // average O(1)
 ```
-<details><summary>⚡ O(1) Constant-Time Access — Beyond the Basics </summary>
 
- Constant-time access isn’t just about theory — in practice, cache locality, branch prediction, and memory layout all affect how “O(1)” really performs. Below are six hand-picked techniques with real-world examples and insightful notes for senior-level readers.
+#### Advanced Techniques
+- Direct Addressing with BitSets  
+- Jump Tables Instead of if-else Chains  
+- Pre-Sizing HashMaps  
+- Concurrent Counting with LongAdder  
+- Memory-Optimized HashMaps (fastutil)  
+- Probabilistic O(1) with Bloom Filters  
 
-When a data structure allows direct addressing, access operations can be performed in constant time — no loops, no scans, just straight-to-the-point lookups. But there are tricks to make O(1) actually shine in real-world performance: 
-
-⚓1. Direct Addressing with BitSets
-
-→ “This works best when IDs are dense and within a known range.”
-For large, dense numeric ranges, skip HashSet overhead and use a memory-efficient BitSet for instant membership tests:
-```java
-BitSet present = new BitSet(1_000_001);
-present.set(16);
-present.set(42);
-
-boolean has16 = present.get(16); // true
-boolean has23 = present.get(23); // false
-```
-Why it matters: No hashing, no collisions — just pure, cache-friendly O(1).☄️
-
-Note:
-Use BitSet or boolean[] when working with dense, bounded ID ranges.
-Unlike HashSet, there’s no hashing overhead, and memory layout stays contiguous, improving CPU cache locality.
-Real-world use case: Tracking enabled features, permission flags, or fast ID membership tests.
-
-⚓2. Jump Tables Instead of if-else Chains
-
-→ “Reduces branch mispredictions, leveraging CPU instruction-level parallelism.”
-Replace long if/switch branches with a direct function jump table:
-```java
-Runnable[] ops = {
-  () -> System.out.println("op0"),
-  () -> System.out.println("op1"),
-  () -> System.out.println("op2"),
-  () -> System.out.println("op3")
-};
-
-int opcode = buffer.get() & 0b11; // 0..3
-ops[opcode].run(); // Direct O(1) dispatch
-```
-Why it matters: Branch prediction stays hot; execution stays lightning-fast.☄️
-
-Note:
-Jump tables remove branch mispredictions and leverage instruction-level parallelism.
-JIT-optimized Java will inline these lambdas, making dispatch significantly faster than long if-else or switch blocks.
-Real-world use case: Network protocol decoders, opcode interpreters, financial rule engines.
-
-⚓3. Pre-Sizing HashMaps
-
-Eliminate costly rehash storms by initializing maps with the right capacity:
-```java
-int expected = 10_000;
-float load = 1.0f;
-Map<String, Integer> scores = new HashMap<>((int)(expected / load), load);
-```
-Why it matters: Fewer resizes → stable O(1) lookups → predictable latency.☄️
-
-Note:
-When you know the expected number of entries, pre-sizing avoids rehash operations, which are costly.
-This leads to stable O(1) performance and better memory predictability.
-Real-world use case: Caching layers, lookup tables, configuration stores where size is predictable.
-
-⚓4. Concurrent Counting Without Contention
-
-```java
-For multi-threaded counters, use LongAdder for true O(1) scaling:
-ConcurrentHashMap<String, LongAdder> counters = new ConcurrentHashMap<>();
-counters.computeIfAbsent("ayse", k -> new LongAdder()).increment();
-long ayseCount = counters.get("ayse").sum();
-```
-Why it matters: Avoids lock contention; optimized for high-concurrency systems.☄️
-
-Note:
-LongAdder uses striped counters to avoid lock contention, performing better than AtomicLong under heavy concurrency.
-This is a proven pattern in high-throughput systems.
-Real-world use case: API rate limiting, request counters, transaction metrics.
-
-⚓5. Memory-Optimized HashMaps
-
-For primitive-heavy workloads, ditch boxing overhead entirely:
-```java
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-
-Int2IntOpenHashMap m = new Int2IntOpenHashMap();
-m.put(16, 1);
-int val = m.getOrDefault(16, 0); // O(1) without GC pressure
-```
-Why it matters: Faster lookups + less garbage collection → happier CPU caches.☄️
-
-Note:
-Java’s default HashMap<Integer,Integer> boxes primitives, which causes extra allocations and GC pressure.
-Libraries like fastutil keep data compact in memory → better cache performance + reduced latency.
-Real-world use case: High-performance trading apps, analytics engines, or telemetry systems with millions of numeric keys.
-
-⚓6. Probabilistic O(1): Bloom Filters
-
-Skip expensive lookups when you just need to know if something might exist:
-→ “Perfect for caching layers, log deduplication, or fraud detection systems.”
-```java
-var bloom = com.google.common.hash.BloomFilter.create(
-  com.google.common.hash.Funnels.stringFunnel(java.nio.charset.StandardCharsets.UTF_8),
-  1_000_000, 0.01
-);
-
-bloom.put("ayse");
-boolean maybe = bloom.mightContain("ayse");  // likely true
-boolean nope  = bloom.mightContain("mehmet"); // definitely false
-```
-Why it matters: Perfect for pre-filtering huge datasets — ultra-lightweight and CPU-friendly.☄️
-
-Note:
-Bloom filters give instant “maybe” lookups with controlled false positive rates but zero false negatives.
-Perfect for cutting down expensive lookups before hitting storage or databases.
-Real-world use case: API caching, fraud detection, log deduplication, large-scale streaming data pipelines.
-
-⚠️Key Takeaways — Complexity: O(1)⚠️
-- Theoretical O(1) ≠ Real-world O(1) → cache, branching, and GC overhead matter.
-- Pre-size structures when possible → fewer surprises at runtime.
-- Use direct addressing or jump tables for hot paths.
-- Combine probabilistic filters (e.g. Bloom) with traditional structures for hybrid speed.
-  
 ---
 
-#### O(logN) → Efficient searching in sorted data, e.g., Binary Search, balanced trees.
+### O(log N) — Binary Search & Trees
+
+#### Classic Binary Search
 ```java
-//Idea: Halving the search area at each step → logarithmic number of steps.
-//O(log N) — Binary Search (Sorted Data)
-// Complexity: O(log N)
-// Pattern: Divide & conquer search on sorted structure
-int[] sorted = { 3, 5, 9, 12, 18, 27, 31, 44, 58 };
+int[] sorted = { 3, 5, 9, 12, 18, 27 };
 int target = 18;
 
 int lo = 0, hi = sorted.length - 1;
-int foundIndex = -1;
-
 while (lo <= hi) {
     int mid = lo + (hi - lo) / 2;
-    if (sorted[mid] == target) {
-        foundIndex = mid;    // success
-        break;
-    } else if (sorted[mid] < target) {
-        lo = mid + 1;        // search right half
-    } else {
-        hi = mid - 1;        // search left half
-    }
-}
-```
-</details>
-
-<details><summary>⚡O(log N) – Spark of Brilliance </summary>
-Idea: Halving the search space at every step → logarithmic growth of steps.
-Complexity: O(log N)
-Pattern: Divide & Conquer search on sorted structures
-
-⚓1) Off-by-one Safe Invariant Template
-```java
-// Invariant: lo is the first index that COULD contain the answer.
-// Search space: [lo, hi)
-int lo = 0, hi = arr.length;
-while (lo < hi) {
-    int mid = lo + (hi - lo) / 2; // overflow-safe
-    if (arr[mid] < target) lo = mid + 1;
-    else hi = mid;
-}
-// lo == lower_bound(target)
-```
-Why it matters:
-This pattern avoids off-by-one errors and works as the base for both lower_bound and “binary search on answer.”
-
-Note: Always prefer [lo, hi) (half-open interval) — easier to reason about and safer.
-
-⚓2) Lower Bound / Upper Bound (Handling Duplicates)
-```java
-int lowerBound(int[] a, int x) { // first >= x
-    int lo = 0, hi = a.length;
-    while (lo < hi) {
-        int mid = lo + (hi - lo) / 2;
-        if (a[mid] < x) lo = mid + 1; else hi = mid;
-    }
-    return lo;
-}
-
-int upperBound(int[] a, int x) { // first > x
-    int lo = 0, hi = a.length;
-    while (lo < hi) {
-        int mid = lo + (hi - lo) / 2;
-        if (a[mid] <= x) lo = mid + 1; else hi = mid;
-    }
-    return lo;
-}
-
-// Usage
-int lb = lowerBound(a, x);
-int ub = upperBound(a, x);
-int count = ub - lb; // number of times x occurs
-```
-Why it matters:
-Cleanly handles duplicates without fragile == checks.
-
-Note: Use lower/upper bounds when counting or validating ranges.
-
-⚓3) Binary Search on Answer (Monotonic Predicate)
-```java
-boolean canShip(int[] w, int days, int cap) {
-    int need = 1, load = 0;
-    for (int x : w) {
-        if (x > cap) return false;
-        if (load + x > cap) { need++; load = 0; }
-        load += x;
-    }
-    return need <= days;
-}
-
-int minCapToShip(int[] w, int days) {
-    int lo = 1, hi = 1_000_000_000; // safe upper bound
-    while (lo < hi) {
-        int mid = lo + (hi - lo) / 2;
-        if (canShip(w, days, mid)) hi = mid;
-        else lo = mid + 1;
-    }
-    return lo;
-}
-```
-Why it matters:
-Binary search works on any monotonic predicate — not just sorted arrays.
-
-Note: Predicate must flip once (false → true or true → false).
-
-⚓4) Search in Rotated Sorted Array
-```java
-int searchRotated(int[] a, int target) {
-    int lo = 0, hi = a.length - 1;
-    while (lo <= hi) {
-        int mid = lo + (hi - lo) / 2;
-        if (a[mid] == target) return mid;
-
-        if (a[lo] <= a[mid]) { // left half sorted
-            if (a[lo] <= target && target < a[mid]) hi = mid - 1;
-            else lo = mid + 1;
-        } else { // right half sorted
-            if (a[mid] < target && target <= a[hi]) lo = mid + 1;
-            else hi = mid - 1;
-        }
-    }
-    return -1;
-}
-```
-Why it matters:
-Even if the array is rotated, binary search logic still applies with careful branch checks.
-
-Note: Works in O(log N) for rotated arrays with distinct elements.
-
-⚓5) Search in Infinite/Unknown Length Array
-```java
-
-int findInUnknown(int[] a, int x) {
-    if (a.length == 0) return -1;
-    int hi = 1;
-    while (hi < a.length && a[hi] < x) hi <<= 1;
-    int lo = hi >> 1;
-    hi = Math.min(hi, a.length - 1);
-
-    while (lo <= hi) {
-        int mid = lo + (hi - lo) / 2;
-        if (a[mid] == x) return mid;
-        if (a[mid] < x) lo = mid + 1; else hi = mid - 1;
-    }
-    return -1;
-}
-```
-Why it matters:
-When size is unknown, expand exponentially first, then apply binary search.
-
-Note: This pattern is common in stream-like or unbounded data.
-
-⚓6) Search with Comparator / Object Key
-```java
-class User { int id; String name; }
-
-// Sorted by id
-int indexOfUserById(List<User> users, int targetId) {
-    int lo = 0, hi = users.size();
-    while (lo < hi) {
-        int mid = lo + (hi - lo) / 2;
-        if (users.get(mid).id < targetId) lo = mid + 1;
-        else hi = mid;
-    }
-    return (lo < users.size() && users.get(lo).id == targetId) ? lo : -1;
-}
-```
-Why it matters:
-Binary search extends beyond primitives; any comparable field works.
-
-Note: Wrap with Comparator for cleaner generalization.
-
-⚓7) FirstTrue / LastTrue Templates
-```java
-// firstTrue: F F F T T T -> first index of T
-int firstTrue(int n, java.util.function.IntPredicate isTrueAt) {
-    int lo = 0, hi = n;
-    while (lo < hi) {
-        int mid = lo + (hi - lo) / 2;
-        if (isTrueAt.test(mid)) hi = mid; else lo = mid + 1;
-    }
-    return lo; // returns n if no true
-}
-
-// lastTrue: T T T F F -> last T = firstFalse - 1
-int lastTrue(int n, java.util.function.IntPredicate isTrueAt) {
-    int lo = 0, hi = n;
-    while (lo < hi) {
-        int mid = lo + (hi - lo) / 2;
-        if (isTrueAt.test(mid)) lo = mid + 1; else hi = mid;
-    }
-    return lo - 1;
-}
-
-```
-Why it matters:
-Abstracts away conditions into a clean, reusable predicate.
-
-Note: Great for solving scheduling, threshold, or feasibility problems.
-
-⚓8) Error-Resistant Tips
-
-💎Overflow-safe midpoint: mid = lo + (hi - lo) / 2
-
-💎Prefer half-open intervals: [lo, hi) reduces off-by-one bugs
-
-💎Monotonicity check: Required for “binary search on answer”
-
-💎Duplicates: Handle via bounds, not equality
-
-💎Guards: Always test for empty, single-element, and uniform arrays
-
-Why it matters:
-These rules turn binary search from bug-prone to bulletproof.
-
-Note: Most interview failures come from off-by-one — this list avoids them.
-
-⚓9) Balanced BST & Skip Lists
-
-💎Arrays → O(log N) search but O(N) updates.
-
-💎Balanced BST (AVL/Red-Black) → O(log N) for search, insert, delete.
-
-💎Skip Lists → simpler to implement, expected O(log N).
-
-Why it matters:
-When data changes frequently, move from arrays to trees/lists for balanced performance.
-
-Note: Arrays = static efficiency; Trees/Skiplists = dynamic efficiency.
-
-⚓10) Mini Validation (classic binary search)
-```java
-int[] sorted = { 3, 5, 9, 12, 18, 27, 31, 44, 58 };
-int target = 18;
-int lo = 0, hi = sorted.length - 1, found = -1;
-
-while (lo <= hi) {
-    int mid = lo + (hi - lo) / 2;
-    if (sorted[mid] == target) { found = mid; break; }
+    if (sorted[mid] == target) break;
     else if (sorted[mid] < target) lo = mid + 1;
     else hi = mid - 1;
 }
-// found == 4
 ```
-Why it matters:
-This is the textbook version — simple, direct, and easy to memorize.
 
-Note: Perfect for warm-up; then graduate to the invariant-based forms.
+#### Variants & Patterns
+- Lower Bound / Upper Bound  
+- Binary Search on Answer (Monotonic Predicate)  
+- Rotated Sorted Array Search  
+- Search in Infinite/Unknown Length Array  
+- Balanced BST & Skip Lists  
+- FirstTrue / LastTrue Templates  
 
-⚠️ Key Takeaways — O(log N) ⚠️
+---
 
-Logarithmic ≠ free → though efficient, repeated log N calls on huge datasets can still dominate runtime.
-Sorted data is a prerequisite → without order or monotonicity, binary search logic fails.
-Choose interval style carefully → [lo, hi) (half-open) reduces off-by-one bugs.
-Monotonic predicates unlock flexibility → binary search is not limited to arrays; it applies to scheduling, capacity, feasibility checks.
-Rotation and duplicates need special care → rotated arrays require branch logic, duplicates require lowerBound/upperBound.
-Dynamic data? Switch structures → balanced BSTs or skip lists preserve O(log N) even with frequent inserts/deletes.
-Overflow-safe midpoints matter → always use lo + (hi - lo) / 2 to avoid integer overflow on large ranges.
+### O(N) — Linear Scan
 
+#### Example
 ```java
-// O(log N) — Binary Search
-// Idea: shrink search space by half each iteration.
-// Use when data is sorted → logarithmic efficiency.
-
-int[] sorted = { 3, 5, 9, 12, 18, 27, 31, 44, 58 };
-int target = 18;
-
-int lo = 0, hi = sorted.length - 1;
-int foundIndex = -1;
-
-while (lo <= hi) {
-    int mid = lo + (hi - lo) / 2;   // safe midpoint
-    if (sorted[mid] == target) {
-        foundIndex = mid;           // success
-        break;
-    } else if (sorted[mid] < target) {
-        lo = mid + 1;               // search right half
-    } else {
-        hi = mid - 1;               // search left half
-    }
-}
-```
-</details>
-<details><summary>💡 Binary Search Sparks </summary>
-
-1.Off-by-one safe invariant → prefer [lo, hi) ranges for cleaner logic.
-2.Overflow protection → always use mid = lo + (hi - lo) / 2.
-3.Duplicates → replace simple equality check with lowerBound / upperBound to count occurrences.
-4.Rotated arrays → still searchable in O(log N) with modified conditions.
-5.Binary search on answer → use when predicate is monotonic (false → true or true → false).
-
-#### O(N) → Linear scan: Scanning through all elements, e.g., finding max in an unsorted array.
-```java
-//Idea: visit each element exactly once → linear time.
-//O(N) — Linear Scan (Single Pass)
-// Complexity: O(N)
-// Pattern: Single pass aggregation (e.g., find max)
-int[] data = { 7, 2, 9, 4, 11, 5 };
+int[] arr = { 7, 2, 9, 4, 11, 5 };
 int maxVal = Integer.MIN_VALUE;
-
-for (int i = 0; i < data.length; i++) {
-    if (data[i] > maxVal) {
-        maxVal = data[i];
-    }
+for (int x : arr) {
+    if (x > maxVal) maxVal = x;
 }
-// Result: maxVal is the maximum element
 ```
 
+#### Key Ideas
+- Must touch every element once.  
+- Used for aggregation (min, max, sum, frequency).  
+- Streaming & parallelizable.  
+
+---
+
+### O(N log N) — Sorting
+
+#### Merge Sort Skeleton
 ```java
-// Example: Find max element in an unsorted array
-int[] arr = { 4, 8, 15, 16, 23, 42 };
-int max = arr[0];
-
-for (int i = 1; i < arr.length; i++) {
-    if (arr[i] > max) {
-        max = arr[i]; // check each element → full scan required
-    }
-}
-// max = 42
-```
-🔎 Why O(N)?
-
-Each element must be touched at least once → no skipping.
-Typical for aggregation: min, max, sum, average, frequency count.
-
-
-⚠️ Key Takeaways — O(N) ⚠️
-
-Inevitable Scan → Some problems cannot be faster than O(N).
-Streaming Friendly → Works well with iterators & pipelines.
-Parallelizable → Can split across threads/cores (e.g., reduce).
-Cache Locality Matters → Sequential access is fast in modern CPUs.
-Short-Circuiting → If condition met early, you can exit sooner (e.g., findFirst).
-
-</details>
-
-<details><summary>💡 O(N logN) → Merge sort: Optimal sorting, e.g., Merge Sort or Quick Sort average case. </summary>
-```java
-//Idea: divide-conquer: merge N at depth log N → N log N.
-//O(N log N) — Comparison Sort (Merge Sort Skeleton)
-// Complexity: O(N log N)
-// Pattern: Divide & conquer sorting (merge sort)
-int[] a = { 9, 3, 1, 7, 4, 6, 2, 8 };
-
-int[] temp = new int[a.length];
-mergeSort(a, 0, a.length - 1, temp);
-
 void mergeSort(int[] arr, int lo, int hi, int[] buf) {
     if (lo >= hi) return;
     int mid = lo + (hi - lo) / 2;
@@ -671,339 +244,51 @@ void mergeSort(int[] arr, int lo, int hi, int[] buf) {
     mergeSort(arr, mid + 1, hi, buf);
     merge(arr, lo, mid, hi, buf);
 }
-
-void merge(int[] arr, int lo, int mid, int hi, int[] buf) {
-    int i = lo, j = mid + 1, k = lo;
-    while (i <= mid && j <= hi) {
-        buf[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
-    }
-    while (i <= mid) buf[k++] = arr[i++];
-    while (j <= hi)  buf[k++] = arr[j++];
-    for (int t = lo; t <= hi; t++) arr[t] = buf[t];
-}
 ```
-O(N log N) — Brilliant Insights (12 Gems)
-⚓1) Merge Sort (Stable, Worst-Case Guaranteed)
 
-Note / Definition: Divide & conquer: split into halves, recursively sort, merge. Each level O(N), depth O(log N).
-Why it matters: Predictable, stable performance even in worst-case; widely used for large datasets.
+#### Techniques
+- Merge Sort — stable, predictable.  
+- Heap Sort — in-place, no extra memory.  
+- TimSort — hybrid, used in Java/Python default sort.  
+- K-way Merge — O(N log K) multi-stream merges.  
+- Fenwick Tree / Segment Tree Ops — O(N log N) analytics.  
+- Longest Increasing Subsequence (patience sorting).  
+- Suffix Arrays (doubling method).  
+- FFT-based Convolution for polynomial multiplication.  
+
+---
+
+### O(N²) — Quadratic
+
+#### Example
 ```java
-void mergeSort(int[] a, int l, int r){
-    if(l>=r) return;
-    int m=(l+r)>>>1;
-    mergeSort(a,l,m); mergeSort(a,m+1,r);
-    int[] tmp=new int[r-l+1];
-    int i=l,j=m+1,k=0;
-    while(i<=m || j<=r){
-        if(j>r || (i<=m && a[i]<=a[j])) tmp[k++]=a[i++];
-        else tmp[k++]=a[j++];
-    }
-    System.arraycopy(tmp,0,a,l,tmp.length);
-}
-```
-⚓2) Heap Sort (In-Place, No Extra Memory)
-
-Note / Definition: Build a max-heap (O(N)), then extract max N times (N log N).
-Why it matters: Runs in-place without extra memory; ideal for constrained environments.
-
-```java
-void heapSort(int[] a){
-    int n=a.length;
-    for(int i=n/2-1;i>=0;i--) heapify(a,n,i);
-    for(int end=n-1; end>0; end--){
-        int t=a[0]; a[0]=a[end]; a[end]=t;
-        heapify(a,end,0);
-    }
-}
-void heapify(int[] a,int n,int i){
-    for(;;){
-        int l=i*2+1, r=i*2+2, mx=i;
-        if(l<n && a[l]>a[mx]) mx=l;
-        if(r<n && a[r]>a[mx]) mx=r;
-        if(mx==i) break;
-        int t=a[i]; a[i]=a[mx]; a[mx]=t; i=mx;
-    }
-}
-```
-⚓3) TimSort (Java’s Default for Objects)
-
-Note / Definition: Hybrid algorithm exploiting existing “runs”; O(N log N) worst-case, faster in practice.
-Why it matters: The default in Java for objects; blazing fast when input is partially ordered.
-```java
-Arrays.sort(listOfComparables); // TimSort under the hood
-```
-⚓4) K-Way Merge
-
-Note / Definition: Merge K sorted lists (total size N) using a min-heap → O(N log K).
-Why it matters: Efficient in multi-stream merges (logs, files, distributed systems).
-```java
-record Node(int val,int li,int idx){}
-int[] mergeK(List<int[]> lists){
-    PriorityQueue<Node> pq=new PriorityQueue<>(Comparator.comparingInt(n->n.val));
-    int total=0;
-    for(int i=0;i<lists.size();i++){
-        if(lists.get(i).length>0){
-            pq.add(new Node(lists.get(i)[0],i,0));
-            total+=lists.get(i).length;
-        }
-    }
-    int[] out=new int[total]; int w=0;
-    while(!pq.isEmpty()){
-        var cur=pq.poll(); out[w++]=cur.val;
-        int ni=cur.idx+1; var arr=lists.get(cur.li);
-        if(ni<arr.length) pq.add(new Node(arr[ni],cur.li,ni));
-    }
-    return out;
-}
-```
-⚓5) Sort + Greedy (Interval Scheduling)
-
-Note / Definition: Sort intervals by end time; greedy pick non-overlapping ones.
-Why it matters: Classic scheduling: max meetings in one room.
-```java
-int scheduleMaxNonOverlapping(int[][] itv){
-    Arrays.sort(itv, Comparator.comparingInt(a->a[1]));
-    int cnt=0, end=-1_000_000_000;
-    for(var s: itv){
-        if(s[0]>=end){ cnt++; end=s[1]; }
-    }
-    return cnt;
-}
-
-```
-⚓6) Sweep Line + Event Sorting
-
-Note / Definition: Sort events (start/end), scan linearly with active set.
-Why it matters: Room allocation, overlap detection, geometry.
-```java
-int minRooms(int[][] itv){
-    int n=itv.length;
-    int[] start=new int[n], end=new int[n];
-    for(int i=0;i<n;i++){ start[i]=itv[i][0]; end[i]=itv[i][1]; }
-    Arrays.sort(start); Arrays.sort(end);
-    int i=0,j=0,rooms=0,ans=0;
-    while(i<n && j<n){
-        if(start[i]<end[j]){ rooms++; ans=Math.max(ans,rooms); i++; }
-        else { rooms--; j++; }
-    }
-    return ans;
-}
-
-```
-⚓7) Fenwick / Segment Tree Ops
-
-Note / Definition: Each update/query O(log N); N ops = O(N log N).
-Why it matters: Real-time analytics (prefix sums, inversion count).
-```java
-class BIT { int n; long[] t;
-    BIT(int n){this.n=n; t=new long[n+1];}
-    void add(int i,long v){ for(; i<=n; i+=i&-i) t[i]+=v; }
-    long sum(int i){ long s=0; for(; i>0; i-=i&-i) s+=t[i]; return s; }
-}
-long inversions(int[] a){
-    int[] comp=a.clone(); Arrays.sort(comp);
-    for(int i=0;i<a.length;i++) a[i]=Arrays.binarySearch(comp,a[i])+1;
-    BIT bit=new BIT(a.length);
-    long inv=0;
-    for(int i=a.length-1;i>=0;i--){
-        inv += bit.sum(a[i]-1);
-        bit.add(a[i],1);
-    }
-    return inv;
-}
-```
-⚓8) Longest Increasing Subsequence (Patience Sorting)
-
-Note / Definition: Maintain tails array, place with binary search.
-Why it matters: Sequence optimization, version history, stock trading.
-```java
-int lengthOfLIS(int[] a){
-    int[] tail=new int[a.length]; int sz=0;
-    for(int x: a){
-        int i=Arrays.binarySearch(tail,0,sz,x);
-        if(i<0) i=~i;
-        tail[i]=x;
-        if(i==sz) sz++;
-    }
-    return sz;
-}
-```
-⚓9) Suffix Array (Doubling Method)
-
-Note / Definition: Sort doubled ranks, double k each step → O(N log N).
-Why it matters: Fast string search, autocomplete, compression.
-```java
-int[] suffixArray(String s){
-    int n=s.length(), k=1; int[] sa=new int[n], r=new int[n], tmp=new int[n];
-    for(int i=0;i<n;i++){ sa[i]=i; r[i]=s.charAt(i); }
-    Comparator<Integer> cmp=(i,j)->{
-        if(r[i]!=r[j]) return Integer.compare(r[i],r[j]);
-        int ri=i+k<n?r[i+k]:-1, rj=j+k<n?r[j+k]:-1;
-        return Integer.compare(ri,rj);
-    };
-    while(k<n){
-        Integer[] idx=new Integer[n];
-        for(int i=0;i<n;i++) idx[i]=sa[i];
-        Arrays.sort(idx,cmp);
-        for(int i=0;i<n;i++) sa[i]=idx[i];
-        tmp[sa[0]]=0;
-        for(int i=1;i<n;i++)
-            tmp[sa[i]]=tmp[sa[i-1]]+(cmp.compare(sa[i-1],sa[i])<0?1:0);
-        System.arraycopy(tmp,0,r,0,n);
-        if(r[sa[n-1]]==n-1) break;
-        k<<=1;
-    }
-    return sa;
-}
-```
-⚓10) FFT-Based Convolution
-
-Note / Definition: Convolution via FFT: O(N log N).
-Why it matters: Signal processing, big-integer multiplication, filtering.
-💡 Pro tip: Zero-pad for linear convolution.
-```java
-// Pseudocode — real implementation uses libraries (e.g., JTransforms)
-// Polynomial multiplication using FFT drops from O(N²) to O(N log N).
-
-```
-⚓11) Sort + GroupBy / Deduplication
-
-Note / Definition: Sorting O(N log N), then linear scan.
-Why it matters: Deterministic grouping without hash collisions.
-```java
-List<int[]> groupByValue(int[] a){
-    Arrays.sort(a);
-    List<int[]> out=new ArrayList<>();
-    for(int i=0;i<a.length;){
-        int j=i; while(j<a.length && a[j]==a[i]) j++;
-        out.add(new int[]{a[i], j-i});
-        i=j;
-    }
-    return out;
-}
-```
-⚓12) Sort + Two-Pointers
-
-Note / Definition: Sort, then scan with left/right pointers.
-Why it matters: Used in 2-sum/3-sum, min-difference, closest pair.
-```java
-int minAbsDiff(int[] a){
-    Arrays.sort(a);
-    int best=Integer.MAX_VALUE;
-    for(int i=1;i<a.length;i++)
-        best=Math.min(best, Math.abs(a[i]-a[i-1]));
-    return best;
-}
-```
-⚠️ Key Takeaways ⚠️
-
-Sorting is the gateway: most O(N log N) problems start with it.
-Heap/priority queue gives O(N log K) for multi-stream merging.
-Tree-based DS (Fenwick, Segment) ensure real-time log-scale ops.
-FFT drops polynomial multiplication from quadratic to quasi-linear.
-Greedy + Sorting solves a surprising amount of scheduling/resource problems.
-</details>
-
-<details><summary>💡 O(N²) → Nested loops: Comparing every pair of elements, e.g., Bubble Sort or nested loops.</summary>
-```java
-//Idea: compare each element with the others → dual circulation, square time.
-//O(N²) — Pairwise Comparison (Nested Loops)
-// Complexity: O(N²)
-// Pattern: All-pairs scan (e.g., count inversions naively)
 int[] nums = { 5, 3, 4, 1 };
-int n = nums.length;
 int pairs = 0;
-
-for (int i = 0; i < n; i++) {
-    for (int j = i + 1; j < n; j++) {
-        // Example work per pair:
-        if (nums[i] > nums[j]) {
-            pairs++;  // count an inversion
-        }
-    }
-}
-// Result: pairs = number of (i < j, nums[i] > nums[j]) pairs
-```
-
-O(N²) — Nested Loops
-When an algorithm compares or processes every pair of elements in a dataset, the runtime scales quadratically: doubling input size roughly quadruples work.
-
-1) Brute-force Pair Comparison
-```java
-// Find duplicates in an array
-int[] arr = {3, 5, 7, 3, 9, 5};
-
-for (int i = 0; i < arr.length; i++) {
-    for (int j = i + 1; j < arr.length; j++) {
-        if (arr[i] == arr[j]) {
-            System.out.println("Duplicate: " + arr[i]);
-        }
-    }
-}
-
-```
-🔎 Why it matters: Simple and intuitive, but quickly becomes infeasible for large inputs.
-📝 Note: Works fine for small datasets, but for millions of elements → dead end.
-
-2) Matrix Multiplication (Classic)
-```java
-# Multiply two N×N matrices
-def multiply(A, B):
-    n = len(A)
-    C = [[0]*n for _ in range(n)]
-    for i in range(n):
-        for j in range(n):
-            for k in range(n):
-                C[i][j] += A[i][k] * B[k][j]
-    return C
-```
-🔎 Why it matters: Fundamental in graphics, ML, scientific computing.
-📝 Note: Naive version is O(N³); optimizations (Strassen, Winograd) bring it closer to O(N^2.81) or better.
-
-3) All-Pairs Distance
-```java
-// Compute all distances between points
-const points = [[0,0],[3,4],[5,12]];
-for (let i = 0; i < points.length; i++) {
-  for (let j = i+1; j < points.length; j++) {
-    const dx = points[i][0] - points[j][0];
-    const dy = points[i][1] - points[j][1];
-    console.log(`dist(${i},${j}) = ${Math.sqrt(dx*dx+dy*dy)}`);
-  }
-}
-```
-🔎 Why it matters: Clustering, collision detection, computational geometry rely on all-pairs checks.
-📝 Note: Often approximated with spatial partitioning (quadtrees, KD-trees) to break quadratic walls.
-4) String Matching (Naive)
-```java
-// Check if pattern exists in text
-void naiveSearch(char* text, char* pat) {
-    int n = strlen(text), m = strlen(pat);
-    for (int i = 0; i <= n - m; i++) {
-        int j;
-        for (j = 0; j < m; j++) {
-            if (text[i + j] != pat[j]) break;
-        }
-        if (j == m) printf("Found at %d\n", i);
+for (int i = 0; i < nums.length; i++) {
+    for (int j = i + 1; j < nums.length; j++) {
+        if (nums[i] > nums[j]) pairs++;
     }
 }
 ```
-🔎 Why it matters: Shows the difference between naive quadratic and advanced O(N+M) (KMP, Rabin-Karp).
-📝 Note: Often used as a teaching example for “when not to use nested loops blindly.”
 
-⚠️ Key Takeaways — O(N²) ⚠️
+#### Patterns
+- Pairwise comparison (duplicates, inversions).  
+- Naive string search.  
+- All-pairs distance in geometry.  
+- Matrix multiplication (naive O(N³), optimizations O(N^2.81)).  
 
-Nested loops over all pairs lead to quadratic growth.
-Fine for small N (<1,000), but catastrophic for big datasets.
-Optimize with early termination (e.g., Bubble Sort stops if no swaps).
-Replace with divide & conquer or hashing when possible.
-Recognize patterns: matrix multiplication, pairwise comparisons, graph adjacency scans.
-🚫 Explodes fast → 1M elements = 10¹² comparisons. Practically impossible.
-🧠 Naive vs. Smart → many O(N²) problems can be reduced to O(N logN) or O(N).
-🛠️ Real-world fix → hashing, sorting, divide-and-conquer often break quadratic traps.
-📊 Bench small, avoid big → O(N²) can still be useful for N ≤ 1000.
-🔄 Nested ≠ necessary → consider if loops can be fused, cut early, or reordered.
-</details>
+---
+
+### Cheat Sheet
+
+| Complexity | Example | Notes |
+|------------|---------|-------|
+| O(1)       | HashMap lookup | Constant-time, cache effects matter |
+| O(log N)   | Binary Search  | Needs sorted/monotonic data |
+| O(N)       | Array scan     | Must touch every element |
+| O(N log N) | Merge Sort     | Sorting, divide & conquer |
+| O(N²)      | Bubble Sort    | Quadratic explosion |
+
 ---
 
 ## 9. Applied Logic (ARPU, CPI, LTV)
