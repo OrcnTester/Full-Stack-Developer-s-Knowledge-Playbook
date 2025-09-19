@@ -164,7 +164,7 @@ ResultSet rs = stmt.executeQuery();
 ---
 ## 8. Big-O--Algorithms
 
-📖 For the full advanced notes, see [BigO_Detailed.md](docs/BigO_Detailed.md)
+📖 For the full advanced notes, see [BigO_Detailed.md](BigO_Detailed.md)
 
 ### O(1) — Constant Time Access
 
