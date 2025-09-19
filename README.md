@@ -1,23 +1,50 @@
 # Full-Stack Developer’s Knowledge Playbook
 
-“Includes VakıfBank 2025 Assessment Prep + Java, System Design & Patterns Deep Dive”
-*Prepared by Orçun Yörük*  
+_Includes VakıfBank 2025 Assessment Prep + Java, System Design & Patterns Deep Dive_  
+**Prepared by Orçun Yörük**
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/OrcnTester/vakifbank-fullstack-exam-guide-2025/main/OrçunYörük_PlayBookBanner.png" alt="Banner" width="100%" />
+  <img src="https://raw.githubusercontent.com/OrcnTester/vakifbank-fullstack-exam-guide-2025/main/fullstack_playbook_banner_fintech.svg" alt="Playbook Banner" width="100%" />
 </p>
+
+![FinTech](https://img.shields.io/badge/focus-FinTech-blue)
+![Risk](https://img.shields.io/badge/domain-Fraud%20%26%20Risk-orange)
+![Real--time](https://img.shields.io/badge/data-Real--time%20Streaming-lightgrey)
+![Java](https://img.shields.io/badge/code-Java-green)
+![SystemDesign](https://img.shields.io/badge/topic-System%20Design-purple)
+
+> **New:** FinTech Analytics Addendum — payments KPIs, fraud/risk patterns, real-time scoring, and experimentation notes.  
+> **Demo GIF:** See the one-page simulation below.
 
 ---
 
-## 📑 Abstract  
-This guide provides a comprehensive overview of the **VakıfBank Full Stack Developer Assessment 2025**.  
-It blends **academic insights** with **real-world coding practices**, covering:  
-- *Java OOP*  
-- *SQL Optimization*  
-- *System Design & Scaling*  
-- *CI/CD Pipelines*  
-- *Testing Strategies*  
-- *Algorithmic Complexity*  
+## Quick Nav
+- [📑 Abstract](#-abstract)
+- [1. Introduction](#1-introduction)
+- [2. Exam Overview](#2-exam-overview)
+- [3. Java & OOP](#3-java--oop-deep-dive)
+- [4. SQL](#4-sql--database-optimization)
+- [5. System Design](#5-system-design-essentials)
+- [6. CI/CD](#6-cicd-best-practices)
+- [7. Testing](#7-testing-strategies)
+- [8. Big-O (At-a-glance)](#8-big-o--algorithms)
+- [**11. FinTech Addendum (NEW)**](#11-fintech-analytics-addendum-new)
+- [📚 Further Reading](#-further-reading--exploration)
+
+---
+
+## 🎞️ Simulation GIF (FinTech Strategy Toggle)
+
+![FinTech Simulation Demo](demo.gif)
+
+<sup>Toggle **Smart / Loose / Tight** → Auth%, Chargeback%, Net GMV ve p99 Latency eşzamanlı tepki verir.</sup>
+
+---
+
+## 📑 Abstract (short)
+A hands-on guide for the **VakıfBank 2025 Full-Stack Assessment** blending **Java/SQL**, **System Design**, **CI/CD**, **Testing**, and **Algorithmic Complexity**.  
+Now includes a **FinTech Analytics addendum**: payments KPIs, fraud/risk heuristics, and a real-time scoring sketch.
+
 
 ---
 
@@ -167,11 +194,11 @@ scores.put("ali", 90);
 scores.put("ayşe", 95);
 int ayse = scores.get("ayşe"); // average O(1) hash lookup
 ```
-⚡ O(1) Constant-Time Access — Beyond the Basics 
+<details><summary>⚡ O(1) Constant-Time Access — Beyond the Basics </summary>
 
-Constant-time access isn’t just about theory — in practice, cache locality, branch prediction, and memory layout all affect how “O(1)” really performs. Below are six hand-picked techniques with real-world examples and insightful notes for senior-level readers.
+ Constant-time access isn’t just about theory — in practice, cache locality, branch prediction, and memory layout all affect how “O(1)” really performs. Below are six hand-picked techniques with real-world examples and insightful notes for senior-level readers.
 
-When a data structure allows direct addressing, access operations can be performed in constant time — no loops, no scans, just straight-to-the-point lookups. But there are tricks to make O(1) actually shine in real-world performance:
+When a data structure allows direct addressing, access operations can be performed in constant time — no loops, no scans, just straight-to-the-point lookups. But there are tricks to make O(1) actually shine in real-world performance: 
 
 ⚓1. Direct Addressing with BitSets
 
@@ -314,8 +341,9 @@ while (lo <= hi) {
     }
 }
 ```
+</details>
 
-⚡O(log N) – Spark of Brilliance
+<details><summary>⚡O(log N) – Spark of Brilliance </summary>
 Idea: Halving the search space at every step → logarithmic growth of steps.
 Complexity: O(log N)
 Pattern: Divide & Conquer search on sorted structures
@@ -571,7 +599,8 @@ while (lo <= hi) {
     }
 }
 ```
-💡 Binary Search Sparks
+</details>
+<details><summary>💡 Binary Search Sparks </summary>
 
 1.Off-by-one safe invariant → prefer [lo, hi) ranges for cleaner logic.
 2.Overflow protection → always use mid = lo + (hi - lo) / 2.
@@ -622,9 +651,9 @@ Parallelizable → Can split across threads/cores (e.g., reduce).
 Cache Locality Matters → Sequential access is fast in modern CPUs.
 Short-Circuiting → If condition met early, you can exit sooner (e.g., findFirst).
 
+</details>
 
-
-#### O(N logN) → Merge sort: Optimal sorting, e.g., Merge Sort or Quick Sort average case.
+<details><summary>💡 O(N logN) → Merge sort: Optimal sorting, e.g., Merge Sort or Quick Sort average case. </summary>
 ```java
 //Idea: divide-conquer: merge N at depth log N → N log N.
 //O(N log N) — Comparison Sort (Merge Sort Skeleton)
@@ -873,9 +902,9 @@ Heap/priority queue gives O(N log K) for multi-stream merging.
 Tree-based DS (Fenwick, Segment) ensure real-time log-scale ops.
 FFT drops polynomial multiplication from quadratic to quasi-linear.
 Greedy + Sorting solves a surprising amount of scheduling/resource problems.
+</details>
 
-
-#### O(N²) → Nested loops: Comparing every pair of elements, e.g., Bubble Sort or nested loops.
+<details><summary>💡 O(N²) → Nested loops: Comparing every pair of elements, e.g., Bubble Sort or nested loops.</summary>
 ```java
 //Idea: compare each element with the others → dual circulation, square time.
 //O(N²) — Pairwise Comparison (Nested Loops)
@@ -974,7 +1003,7 @@ Recognize patterns: matrix multiplication, pairwise comparisons, graph adjacency
 🛠️ Real-world fix → hashing, sorting, divide-and-conquer often break quadratic traps.
 📊 Bench small, avoid big → O(N²) can still be useful for N ≤ 1000.
 🔄 Nested ≠ necessary → consider if loops can be fused, cut early, or reordered.
-
+</details>
 ---
 
 ## 9. Applied Logic (ARPU, CPI, LTV)
@@ -1053,6 +1082,164 @@ Customer LTV = ARPU × Repeat Purchases
 ✅ **Logic:** ARPDAU × LTV × K-Factor formulas  
 
 ---
+
+## 11. FinTech Analytics Addendum (NEW)
+
+This addendum highlights **fintech‑focused analytics** you can showcase alongside the VakıfBank 2025 prep: risk, fraud, payments, growth metrics, and real‑time data patterns. It’s designed to be pasted into the README as Section 11 and referenced in interviews.
+
+---
+
+### 11.1 Core KPIs & Quick Formulas
+
+* **Authorization Rate (Auth%)** = Approved / Attempted
+* **Chargeback Rate** = Chargebacks / Successful Payments
+* **Refund Rate** = Refunds / Successful Payments
+* **Take Rate** = Platform Revenue / GMV
+* **Gross Margin** = (Revenue − COGS) / Revenue
+* **CAC Payback (months)** = CAC / Monthly Gross Profit per Customer
+* **Delinquency (30/60/90+)** = Past‑due Principals in Bucket / Total Outstanding
+* **PD/LGD/EAD (Risk)**: Probability of Default, Loss Given Default, Exposure at Default (inputs for expected loss = PD × LGD × EAD)
+
+> **Interview spark:** Be ready to explain why Auth% and Chargeback% often trade off when tightening fraud rules.
+
+---
+
+### 11.2 Data Architecture — Real‑Time Scoring Path
+
+```mermaid
+flowchart LR
+  Client[Apps / POS / Gateway] --> API[Payment API]
+  API --> K[(Kafka Topics: payments, auth, refunds)]
+  K --> P[Flink/Spark Streaming]
+  P --> FS[(Feature Store: online/offline)]
+  FS --> M[Fraud & Risk Models]
+  M --> S[Scoring API p99 <= 150 ms]
+  S --> DEC{Allow?}
+  DEC -->|yes| PG[(OLTP)]
+  DEC -->|no| Q[Queue for manual review]
+  PG --> DW[(OLAP / Lakehouse)]
+  DW --> dbt[dbt]
+  dbt --> BI[BI/Dashboards]
+  Vault[(KMS/Vault)] -.->|secrets| API
+
+```
+**Patterns:** CDC (Debezium) → Kafka → Streaming features → Online store (Redis/Scylla) → Model inferencing → OLAP sync for analytics. SLA targets: **p99 < 200ms**, **99.95%** availability for scoring.
+
+---
+
+### 11.3 Fraud & Risk — Practical Snippets
+
+**Velocity + Amount Band Rule (SQL skeleton)**
+
+```sql
+-- Flag users with unusually high amount & count in a short window
+WITH tx AS (
+  SELECT user_id, amount, status, created_at,
+         DATE_TRUNC('minute', created_at) AS m
+  FROM payments
+  WHERE created_at >= NOW() - INTERVAL '24 hours'
+)
+, agg AS (
+  SELECT user_id, m,
+         COUNT(*) AS tx_cnt,
+         SUM(amount) AS tx_sum,
+         SUM(CASE WHEN status='DECLINED' THEN 1 ELSE 0 END) AS declines
+  FROM tx
+  GROUP BY user_id, m
+)
+SELECT *
+FROM agg
+WHERE tx_cnt >= 5
+  AND tx_sum >= 1000
+  AND declines >= 2;
+```
+
+**Online Features with Cache‑aside (pseudocode)**
+
+```java
+// getFeature(userId): try online cache, fall back to OLAP snapshot
+Features getFeature(String userId){
+  var f = onlineStore.get(userId);
+  if (f == null) {
+    f = offlineSnapshot.query(userId);
+    if (f != null) onlineStore.put(userId, f, TTL_15M);
+  }
+  return f;
+}
+```
+
+**Expected Loss (EL) monitor (SQL)**
+
+```sql
+SELECT date_trunc('day', asof) d,
+       SUM(pd * lgd * ead) AS expected_loss
+FROM credit_exposure
+GROUP BY 1
+ORDER BY 1;
+```
+
+> **Note:** For models, track **KS, AUC, population stability (PSI)**, and **drift** on top features.
+
+---
+
+### 11.4 Experimentation & Uplift (Payments & Risk)
+
+* **A/B for Auth Strategy**: Variant A = looser rules (↑Auth, ↑CB risk), Variant B = tighter (↓Auth, ↓CB). Optimize **Net GMV = Approved GMV − Chargeback Loss − Opex**.
+* **CUPED (variance reduction)**: `Y* = Y − θ (X − E[X])`, with θ ≈ Cov(Y,X)/Var(X). Use pre‑period conversions as covariate X.
+* **Sequential tests** when traffic to risky cohorts is small; cap risk exposure.
+
+---
+
+### 11.5 Compliance & Security Checklist (FinTech)
+
+* **PCI DSS**: Card data tokenization, no PAN storage; quarterly ASV scans.
+* **KVKK/GDPR**: Purpose limitation, data minimization, RTBF workflows.
+* **SCA/2FA**: PSD2‑style strong customer authentication for high‑risk ops.
+* **Audit Trails**: Immutable logs (WORM), time‑sync via NTP.
+* **Secrets**: KMS/Vault, short‑lived tokens, rotate keys; no secrets in CI logs.
+
+---
+
+### 11.6 Analytics Dashboards — What to Show
+
+* **Payments Funnel**: Attempt → 3DS → Approved → Settled; drop‑off heatmap by BIN/issuer.
+* **Fraud Panel**: Rule hit‑rates, review queue SLA, false‑positive cost.
+* **Growth**: Cohort LTV, CAC payback, retention curves.
+* **Risk**: PD/LGD drift, EL vs Actual Loss, roll‑rates (30→60→90+).
+
+**Cohort LTV (monthly) sample**
+
+```sql
+WITH first_pay AS (
+  SELECT user_id, MIN(date_trunc('month', paid_at)) AS cohort
+  FROM payments WHERE status='PAID' GROUP BY user_id
+), rev AS (
+  SELECT p.user_id,
+         date_trunc('month', p.paid_at) AS m,
+         SUM(p.amount) AS revenue
+  FROM payments p WHERE p.status='PAID'
+  GROUP BY 1,2
+)
+SELECT fp.cohort,
+       m,
+       SUM(revenue) AS cohort_rev,
+       COUNT(DISTINCT rev.user_id) AS actives
+FROM first_pay fp
+JOIN rev ON rev.user_id = fp.user_id
+GROUP BY 1,2
+ORDER BY 1,2;
+```
+
+---
+
+### 11.7 Talking Points (Interview‑Ready)
+
+* *“We optimized Auth% by issuer routing + dynamic 3DS, then guarded CB% via real‑time velocity features.”*
+* *“We separated online/offline features to hit p99 < 200ms scoring SLA.”*
+* *“Drift monitoring on top 10 features with alerts feeding a retrain queue.”*
+
+---
+
 
 ## 📚 Further Reading & Exploration  
 To deepen your understanding and explore the broader context of software engineering, algorithms, and problem-solving, the following resources are highly recommended:
