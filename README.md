@@ -3,6 +3,8 @@
 _Includes VakıfBank 2025 Assessment Prep + Java, System Design & Patterns Deep Dive_  
 **Prepared by Orçun Yörük**
 
+This playbook is built around a simple rule: ship clean, then prove it. I’m using the VakıfBank 2025 assessment prep as a fast, realistic sandbox to demonstrate production-grade habits—clear Java/SQL fundamentals, system design thinking, CI/CD discipline, and measurable testing outcomes—while aligning the learning track with my IBM AI Engineering path. The goal isn’t just to “know the answers,” but to deliver repeatable, reviewable artifacts (notes, patterns, mini-implementations, and metrics) that reflect how real fintech systems are built, verified, and improved under time pressure.
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/OrcnTester/vakifbank-fullstack-exam-guide-2025/main/OrçunYörük_PlayBookBanner.png" alt="Playbook Banner" width="100%" />
 </p>
