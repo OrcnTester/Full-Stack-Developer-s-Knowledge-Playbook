@@ -4,7 +4,7 @@ _Includes VakıfBank 2025 Assessment Prep + Java, System Design & Patterns Deep 
 **Prepared by Orçun Yörük**
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/OrcnTester/vakifbank-fullstack-exam-guide-2025/main/fullstack_playbook_banner_fintech.svg" alt="Playbook Banner" width="100%" />
+  <img src="https://raw.githubusercontent.com/OrcnTester/vakifbank-fullstack-exam-guide-2025/main/OrçunYörük_PlayBookBanner.png" alt="Playbook Banner" width="100%" />
 </p>
 
 ![FinTech](https://img.shields.io/badge/focus-FinTech-blue)
